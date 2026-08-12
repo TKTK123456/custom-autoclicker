@@ -3,7 +3,8 @@ export {};
 declare global {
   interface Window {
     autoclicker: {
-      toggle(): Promise<unknown>;
+      setKey(key: string): Promise<any>;
+      stop: () => Promise<any>;
     };
   }
 }

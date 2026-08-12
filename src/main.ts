@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fs from "node:fs/promises";
 import ejs from "ejs";
+import { uIOhook, UiohookKey, UiohookKeyboardEvent } from "uiohook-napi";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,7 +24,7 @@ const units = {
   Warship: 7,
   MIRV: 0,
 };
-
+type Unit = keyof typeof units;
 for (const key of Object.keys(units)) {
   data.buildingDropdown += `<option value="${key}">${key}</option>`;
 }
@@ -62,6 +63,7 @@ app.whenReady().then(() => {
       createWindow();
     }
   });
+  uIOhook.start();
 });
 
 app.on("window-all-closed", () => {
@@ -69,8 +71,51 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
-
-ipcMain.handle("autoclicker:toggle", () => {
-  robot.mouseClick();
-  console.log("hi");
+const clickerIntervalMs = 100;
+const maxPerMin = 150;
+let clickerInterval: number | undefined | NodeJS.Timeout = undefined;
+const amountThisMin: number[] = [];
+let unit: Unit = "City";
+function doClick() {
+  while (Date.now() - (amountThisMin[0] ?? Infinity) >= 60000) {
+    amountThisMin.shift();
+  }
+  if (amountThisMin.length < maxPerMin) {
+    const key = units[unit].toString();
+    if (unit != "Atom Bomb") {
+      robot.keyTap(key);
+      if (unit !== "MIRV" && unit !== "Hydro" && unit !== "Warship")
+        robot.keyTap(key);
+    }
+    robot.mouseClick();
+    amountThisMin.push(Date.now());
+  }
+}
+function start() {
+  stop();
+  if (unit === "Atom Bomb") {
+    const key = units[unit].toString();
+    robot.keyTap(key);
+    robot.keyTap(key);
+  }
+  clickerInterval = setInterval(doClick, clickerIntervalMs);
+}
+function stop() {
+  if (clickerInterval !== undefined) {
+    clearInterval(clickerInterval);
+    clickerInterval = undefined;
+  }
+}
+ipcMain.handle("autoclicker:setKey", (e: any, setUnit: Unit) => {
+  unit = setUnit;
+});
+ipcMain.handle("autoclicker:stop", stop);
+uIOhook.on("keydown", (e: UiohookKeyboardEvent) => {
+  if (e.keycode === UiohookKey.Z && e.ctrlKey) {
+    if (clickerInterval === undefined) {
+      start();
+    } else {
+      stop();
+    }
+  }
 });
