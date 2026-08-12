@@ -1,0 +1,24 @@
+{
+  "name": "custom-autoclicker",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/TKTK123456/custom-autoclicker#readme",
+  "bugs": {
+    "url": "https://github.com/TKTK123456/custom-autoclicker/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TKTK123456/custom-autoclicker.git"
+  },
+  "license": "MIT",
+  "author": "TKTK1234567",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "robotjs": "^0.9.1",
+    "tsx": "^4.23.12"
+  }
+}
