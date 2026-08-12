@@ -1,7 +1,7 @@
 {
   "name": "custom-autoclicker",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.1",
+  "description": "Custom autoclicker",
   "homepage": "https://github.com/TKTK123456/custom-autoclicker#readme",
   "bugs": {
     "url": "https://github.com/TKTK123456/custom-autoclicker/issues"
@@ -13,21 +13,33 @@
   "license": "MIT",
   "author": "TKTK1234567",
   "type": "module",
-  "main": "./build/main.js",
+  "main": "./build/backend/main.js",
   "scripts": {
-    "build": "rm -rf build && tsc && cp -r src/client/*.ejs build/client/ && find build/client -type f -name '*.js' -exec sh -c 'mv \"$1\" \"${1%.js}.mjs\"' _ {} \\;",
-    "start": "npm run build && electron .",
+    "buildTS": "tsx build.ts",
+    "startForge": "npm run buildTS && electron-forge start",
+    "start": "npm run buildTS && electron .",
     "format": "prettier --plugin=prettier-plugin-ejs --write 'src/**/*.{ts,tsx,js,jsx,ejs,html}'",
     "check": "tsc --noEmit",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "electron-forge package",
+    "make": "npm run buildTS && electron-forge make"
   },
   "dependencies": {
     "@types/ejs": "^3.1.5",
     "ejs": "^6.0.1",
+    "electron-squirrel-startup": "^1.0.1",
     "robotjs": "^0.9.1",
     "uiohook-napi": "^1.5.5"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^7.11.2",
+    "@electron-forge/maker-deb": "^7.11.2",
+    "@electron-forge/maker-rpm": "^7.11.2",
+    "@electron-forge/maker-squirrel": "^7.11.2",
+    "@electron-forge/maker-zip": "^7.11.2",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.11.2",
+    "@electron-forge/plugin-fuses": "^7.11.2",
+    "@electron/fuses": "^1.8.0",
     "@types/node": "^26.2.0",
     "electron": "^43.4.0",
     "eslint-plugin-prettier": "^5.5.3",
@@ -35,5 +47,9 @@
     "prettier-plugin-ejs": "^1.0.3",
     "tsx": "^4.23.12",
     "typescript": "^5.0.0"
+  },
+  "allowScripts": {
+    "uiohook-napi@1.5.5": true,
+    "robotjs@0.9.1": true
   }
 }

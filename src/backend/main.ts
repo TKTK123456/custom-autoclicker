@@ -2,32 +2,13 @@ import robot from "robotjs";
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import fs from "node:fs/promises";
-import ejs from "ejs";
 import { uIOhook, UiohookKey, UiohookKeyboardEvent } from "uiohook-napi";
+import { RateLimitInfo } from "../shared/sharedTypes.js";
+import { Unit, units } from "../shared/sharedInfo.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const data: Record<string, any> = {
-  buildingDropdown: "",
-};
-//Name: Keyboard key
-const units = {
-  City: 1,
-  Factory: 2,
-  Port: 3,
-  Silo: 5,
-  SAM: 6,
-  "Atom Bomb": 8,
-  Hydro: 9,
-  Warship: 7,
-  MIRV: 0,
-};
-type Unit = keyof typeof units;
-for (const key of Object.keys(units)) {
-  data.buildingDropdown += `<option value="${key}">${key}</option>`;
-}
 
 async function createWindow() {
   const win = new BrowserWindow({
@@ -35,37 +16,27 @@ async function createWindow() {
     height: 600,
 
     webPreferences: {
-      preload: path.join(__dirname, "client", "preload.mjs"),
+      preload: path.join(__dirname, "../client", "preload.mjs"),
       sandbox: false,
     },
   });
+  const htmlPath = path.join(__dirname, "../client", "index.html");
 
-  const templatePath = path.join(__dirname, "client", "index.ejs");
-
-  const outputPath = path.join(__dirname, "client", "index.html");
-
-  try {
-    const html = await ejs.renderFile(templatePath, data);
-
-    await fs.writeFile(outputPath, html);
-
-    await win.loadFile(outputPath);
-  } catch (err) {
-    console.error("Failed to render EJS:", err);
-  }
+  await win.loadFile(htmlPath);
 }
+let mainWindow: Electron.BrowserWindow;
 
-app.whenReady().then(() => {
-  createWindow();
-
-  app.on("activate", () => {
+app.whenReady().then(async () => {
+  await createWindow();
+  mainWindow = BrowserWindow.getAllWindows()[0];
+  app.on("activate", async () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+      await createWindow();
+      mainWindow = BrowserWindow.getAllWindows()[0];
     }
   });
   uIOhook.start();
 });
-
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
@@ -77,7 +48,7 @@ let clickerInterval: number | undefined | NodeJS.Timeout = undefined;
 const amountThisMin: number[] = [];
 let unit: Unit = "City";
 function doClick() {
-  while (Date.now() - (amountThisMin[0] ?? Infinity) >= 60000) {
+  while (Date.now() - (amountThisMin[11] ?? Infinity) >= 60000) {
     amountThisMin.shift();
   }
   if (amountThisMin.length < maxPerMin) {
@@ -90,6 +61,8 @@ function doClick() {
     robot.mouseClick();
     amountThisMin.push(Date.now());
   }
+  const data: RateLimitInfo = { amount: amountThisMin.length, max: maxPerMin };
+  mainWindow.webContents.send("autoclicker:rateLimitInfo", data);
 }
 function start() {
   stop();

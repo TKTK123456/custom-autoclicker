@@ -23,7 +23,7 @@
     "skipLibCheck": true,
     "types": ["node", "electron"],
 
-    "outDir": "build"
+    "outDir": "build",
   },
 
   "include": ["src/**/*"],

@@ -1,3 +1,5 @@
+import { RateLimitInfo } from "../shared/sharedTypes.ts";
+
 export {};
 
 declare global {
@@ -5,6 +7,7 @@ declare global {
     autoclicker: {
       setKey(key: string): Promise<any>;
       stop: () => Promise<any>;
+      onRateLimitInfo: (callback: (data: RateLimitInfo) => void) => void;
     };
   }
 }
