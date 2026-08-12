@@ -1,1 +1,1 @@
-window.autoclicker.run();
+window.autoclicker.toggle();

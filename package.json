@@ -15,17 +15,23 @@
   "type": "module",
   "main": "./build/main.js",
   "scripts": {
-    "build": "rm -rf build && tsc && cp -r src/client/*.html build/client/ && find build/client -type f -name '*.js' -exec sh -c 'mv \"$1\" \"${1%.js}.mjs\"' _ {} \\;",
+    "build": "rm -rf build && tsc && cp -r src/client/*.ejs build/client/ && find build/client -type f -name '*.js' -exec sh -c 'mv \"$1\" \"${1%.js}.mjs\"' _ {} \\;",
     "start": "npm run build && electron .",
+    "format": "prettier --plugin=prettier-plugin-ejs --write 'src/**/*.{ts,tsx,js,jsx,ejs,html}'",
     "check": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@types/ejs": "^3.1.5",
+    "ejs": "^6.0.1",
     "robotjs": "^0.9.1"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
     "electron": "^43.4.0",
+    "eslint-plugin-prettier": "^5.5.3",
+    "prettier": "^3.9.6",
+    "prettier-plugin-ejs": "^1.0.3",
     "tsx": "^4.23.12",
     "typescript": "^5.0.0"
   }

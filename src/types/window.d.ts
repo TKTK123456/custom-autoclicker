@@ -1,9 +1,9 @@
 export {};
 
 declare global {
-    interface Window {
-        autoclicker: {
-            run(): Promise<unknown>;
-        };
-    }
+  interface Window {
+    autoclicker: {
+      toggle(): Promise<unknown>;
+    };
+  }
 }
